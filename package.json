@@ -1,0 +1,14 @@
+{
+  "name": "fischl",
+  "private": true,
+  "workspaces": [
+    "services/*",
+    "shared"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:identity": "npm --workspace services/identity run dev",
+    "dev:bastions": "npm --workspace services/bastions run dev",
+    "docker:compose": "docker compose up -d"
+  }
+}

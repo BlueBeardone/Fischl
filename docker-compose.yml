@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    container_name: fischl-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  identity:
+    build:
+      context: .
+      dockerfile: services/identity/Dockerfile
+    container_name: fischl-identity
+    environment:
+      PORT: 3001
+      MONGODB_URI: mongodb://mongo:27017/fischl-identity
+      JWT_SECRET: dev-jwt-secret
+    depends_on:
+      - mongo
+    ports:
+      - "3001:3001"
+
+  bastions:
+    build:
+      context: .
+      dockerfile: services/bastions/Dockerfile
+    container_name: fischl-bastions
+    environment:
+      PORT: 3002
+      MONGODB_URI: mongodb://mongo:27017/fischl-bastions
+      JWT_SECRET: dev-jwt-secret
+    depends_on:
+      - mongo
+    ports:
+      - "3002:3002"
+
+volumes:
+  mongo-data:
