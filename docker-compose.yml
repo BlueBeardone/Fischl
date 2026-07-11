@@ -37,5 +37,19 @@ services:
     ports:
       - "3002:3002"
 
+  newspapers:
+    build:
+      context: .
+      dockerfile: services/newspapers/Dockerfile
+    container_name: fischl-newspapers
+    environment:
+      PORT: 3003
+      MONGODB_URI: mongodb://mongo:27017/fischl-newspapers
+      JWT_SECRET: dev-jwt-secret
+    depends_on:
+      - mongo
+    ports:
+      - "3003:3003"
+
 volumes:
   mongo-data:
