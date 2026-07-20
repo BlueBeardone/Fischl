@@ -1,10 +1,10 @@
 import { Schema, model } from 'mongoose';
-import type { IFacilityTable } from '../../../../shared/types';
+import type { Rank, IFacilityTable } from '../../../../shared/types';
 
 export interface IFacility {
   id: string;
   name: string;
-  rank: string;
+  rank: Rank;
   minimumRequiredHirelings: number;
   constructionTurns: number;
   cost: number;

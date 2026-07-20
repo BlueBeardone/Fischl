@@ -24,7 +24,7 @@ export class HirelingController {
 
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const hireling = await this.service.getById(req.params.id);
+      const hireling = await this.service.getById(req.params.id as string);
       if (!hireling) {
         res.status(404).json({ success: false, message: 'Hireling not found' });
         return;
@@ -37,7 +37,7 @@ export class HirelingController {
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const hireling = await this.service.update(req.params.id, req.body);
+      const hireling = await this.service.update(req.params.id as string, req.body);
       if (!hireling) {
         res.status(404).json({ success: false, message: 'Hireling not found' });
         return;
@@ -50,7 +50,7 @@ export class HirelingController {
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.service.delete(req.params.id);
+      await this.service.delete(req.params.id as string);
       res.status(200).json({ success: true, message: 'Hireling deleted' });
     } catch (error) {
       next(error);

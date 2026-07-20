@@ -6,23 +6,23 @@ export class HirelingService {
   constructor(private readonly repository = new HirelingRepository()) {}
 
   async create(input: CreateHirelingDto): Promise<IHireling> {
-    return this.repository.create(input as Record<string, unknown>);
+    return this.repository.create(input as unknown as Record<string, unknown>) as unknown as IHireling;
   }
 
   async listAll(): Promise<IHireling[]> {
-    return this.repository.findAll();
+    return this.repository.findAll() as unknown as IHireling[];
   }
 
   async getById(id: string): Promise<IHireling | null> {
-    return this.repository.findById(id);
+    return this.repository.findById(id) as unknown as IHireling | null;
   }
 
   async listByBastionId(bastionId: string): Promise<IHireling[]> {
-    return this.repository.findByBastionId(bastionId);
+    return this.repository.findByBastionId(bastionId) as unknown as IHireling[];
   }
 
   async update(id: string, input: UpdateHirelingDto): Promise<IHireling | null> {
-    return this.repository.update(id, input as Record<string, unknown>);
+    return this.repository.update(id, input as unknown as Record<string, unknown>) as unknown as IHireling | null;
   }
 
   async delete(id: string): Promise<void> {

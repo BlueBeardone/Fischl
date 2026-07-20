@@ -24,17 +24,8 @@ export class BastionController {
 
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastion = await this.bastionService.getById(req.params.id);
+      const bastion = await this.bastionService.getById(req.params.id as string);
       res.status(200).json({ success: true, data: bastion });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  listByOwner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const bastions = await this.bastionService.listByOwner(req.params.userId);
-      res.status(200).json({ success: true, data: bastions });
     } catch (error) {
       next(error);
     }
@@ -42,7 +33,7 @@ export class BastionController {
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastion = await this.bastionService.update(req.params.id, req.body);
+      const bastion = await this.bastionService.update(req.params.id as string, req.body);
       res.status(200).json({ success: true, data: bastion });
     } catch (error) {
       next(error);
@@ -51,7 +42,7 @@ export class BastionController {
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.bastionService.delete(req.params.id);
+      await this.bastionService.delete(req.params.id as string);
       res.status(200).json({ success: true, message: 'Bastion deleted' });
     } catch (error) {
       next(error);

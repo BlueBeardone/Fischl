@@ -13,9 +13,10 @@ const newspaperArticleSchema = new Schema(
     content: { type: String, required: true },
     imageUrl: { type: String },
     author: { type: String },
-    createdAt: { type: Date, expires: '7d' },
   },
   { timestamps: true }
 );
+
+newspaperArticleSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
 
 export const NewspaperArticleModel = model<INewspaperArticle>('NewspaperArticle', newspaperArticleSchema);

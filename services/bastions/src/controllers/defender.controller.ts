@@ -24,7 +24,7 @@ export class DefenderController {
 
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const defender = await this.service.getById(req.params.id);
+      const defender = await this.service.getById(req.params.id as string);
       if (!defender) {
         res.status(404).json({ success: false, message: 'Defender not found' });
         return;
@@ -37,7 +37,7 @@ export class DefenderController {
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const defender = await this.service.update(req.params.id, req.body);
+      const defender = await this.service.update(req.params.id as string, req.body);
       if (!defender) {
         res.status(404).json({ success: false, message: 'Defender not found' });
         return;
@@ -50,7 +50,7 @@ export class DefenderController {
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.service.delete(req.params.id);
+      await this.service.delete(req.params.id as string);
       res.status(200).json({ success: true, message: 'Defender deleted' });
     } catch (error) {
       next(error);

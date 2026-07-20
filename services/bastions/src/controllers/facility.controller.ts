@@ -24,7 +24,7 @@ export class FacilityController {
 
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const facility = await this.service.getById(req.params.id);
+      const facility = await this.service.getById(req.params.id as string);
       if (!facility) {
         res.status(404).json({ success: false, message: 'Facility not found' });
         return;
@@ -37,7 +37,7 @@ export class FacilityController {
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const facility = await this.service.update(req.params.id, req.body);
+      const facility = await this.service.update(req.params.id as string, req.body);
       if (!facility) {
         res.status(404).json({ success: false, message: 'Facility not found' });
         return;
@@ -50,7 +50,7 @@ export class FacilityController {
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.service.delete(req.params.id);
+      await this.service.delete(req.params.id as string);
       res.status(200).json({ success: true, message: 'Facility deleted' });
     } catch (error) {
       next(error);

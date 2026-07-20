@@ -1,11 +1,12 @@
 import { Schema, model } from 'mongoose';
+import type { DefenderType } from '../../../../shared/types';
 
 export interface IDefender {
   id: string;
   name?: string;
   description?: string;
   imgUrl?: string;
-  type: string;
+  type: DefenderType;
   bastionId: string;
   acquisitionStory?: string;
 }
