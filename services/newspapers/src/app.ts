@@ -1,7 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { articleRouter } from './routes/article.routes';
+import { newspaperRouter } from './routes/newspaper-article.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
 
@@ -19,7 +19,7 @@ export const createApp = async (): Promise<Application> => {
     res.json({ success: true, message: 'Newspapers service is healthy' });
   });
 
-  app.use('/newspapers', articleRouter);
+  app.use('/newspapers', newspaperRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     errorHandler(err, res);
