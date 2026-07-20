@@ -1,24 +1,20 @@
-import { BastionModel, IBastion } from '../models/bastion.model';
+import { BastionModel } from '../models/bastion.model';
 
 export class BastionRepository {
-  async create(data: Partial<IBastion>): Promise<IBastion> {
+  async create(data: Record<string, unknown>) {
     const bastion = await BastionModel.create(data);
-    return bastion.toObject() as IBastion;
+    return bastion.toObject();
   }
 
-  async findAll(): Promise<IBastion[]> {
+  async findAll() {
     return BastionModel.find().lean().exec();
   }
 
-  async findById(id: string): Promise<IBastion | null> {
+  async findById(id: string) {
     return BastionModel.findById(id).lean().exec();
   }
 
-  async findByOwner(ownerId: string): Promise<IBastion[]> {
-    return BastionModel.find({ ownerId }).lean().exec();
-  }
-
-  async update(id: string, data: Partial<IBastion>): Promise<IBastion | null> {
+  async update(id: string, data: Record<string, unknown>) {
     return BastionModel.findByIdAndUpdate(id, data, { new: true }).lean().exec();
   }
 

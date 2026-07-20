@@ -1,17 +1,11 @@
 export interface CreateBastionDto {
   name: string;
-  description?: string;
-  ownerId: string;
-  rank?: string;
-  location?: string;
-  status?: 'active' | 'inactive';
+  description: string;
+  imgUrl?: string;
 }
 
 export interface UpdateBastionDto {
   name?: string;
   description?: string;
-  ownerId?: string;
-  rank?: string;
-  location?: string;
-  status?: 'active' | 'inactive';
+  imgUrl?: string;
 }
