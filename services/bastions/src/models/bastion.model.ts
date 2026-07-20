@@ -16,13 +16,17 @@ const bastionSchema = new Schema(
   {
     timestamps: true,
     toJSON: {
+      virtuals: true,
       transform: (_doc: any, ret: any) => {
-        ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
       },
     },
   }
 );
+
+bastionSchema.virtual('id').get(function () {
+  return this._id.toString();
+});
 
 export const BastionModel = model('Bastion', bastionSchema);
