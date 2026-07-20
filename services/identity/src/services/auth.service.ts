@@ -2,12 +2,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../repositories/user.repository';
 import { LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
-import { IUser } from '../models/user.model';
+import { IAuthUser, IUser } from '../models/user.model';
 
 export class AuthService {
   constructor(private readonly userRepository = new UserRepository()) {}
 
-  async register(input: RegisterUserDto): Promise<{ user: Partial<IUser>; token: string }> {
+  async register(input: RegisterUserDto): Promise<{ user: IUser; token: string }> {
     this.validateInput(input);
 
     const existingEmail = await this.userRepository.findByEmail(input.email);
@@ -31,10 +31,10 @@ export class AuthService {
     });
 
     const token = this.signToken(user._id!);
-    return { user: this.sanitizeUser(user), token };
+    return { user: this.toPublicUser(user), token };
   }
 
-  async login(input: LoginUserDto): Promise<{ user: Partial<IUser>; token: string }> {
+  async login(input: LoginUserDto): Promise<{ user: IUser; token: string }> {
     if (!input.email || !input.password) {
       throw new Error('Email and password are required');
     }
@@ -50,22 +50,30 @@ export class AuthService {
     }
 
     const token = this.signToken(user._id!);
-    return { user: this.sanitizeUser(user), token };
+    return { user: this.toPublicUser(user), token };
   }
 
-  async getCurrentUser(userId: string): Promise<Partial<IUser> | null> {
+  async getCurrentUser(userId: string): Promise<IUser | null> {
     const user = await this.userRepository.findById(userId);
-    return user ? this.sanitizeUser(user) : null;
+    return user ? this.toPublicUser(user) : null;
   }
 
-  async getUserById(userId: string): Promise<Partial<IUser> | null> {
+  async getUserById(userId: string): Promise<IUser | null> {
     const user = await this.userRepository.findById(userId);
-    return user ? this.sanitizeUser(user) : null;
+    return user ? this.toPublicUser(user) : null;
   }
 
-  async updateUser(userId: string, input: UpdateUserDto): Promise<Partial<IUser> | null> {
-    const user = await this.userRepository.update(userId, input);
-    return user ? this.sanitizeUser(user) : null;
+  async updateUser(userId: string, input: UpdateUserDto): Promise<IUser | null> {
+    const updateData: Record<string, unknown> = {};
+    if (input.displayName !== undefined) {
+      updateData.username = input.displayName;
+    }
+    if (input.bastionId !== undefined) {
+      updateData.bastionId = input.bastionId;
+    }
+
+    const user = await this.userRepository.update(userId, updateData as Partial<IAuthUser>);
+    return user ? this.toPublicUser(user) : null;
   }
 
   private signToken(userId: string): string {
@@ -73,9 +81,12 @@ export class AuthService {
     return jwt.sign({ sub: userId }, secret, { expiresIn: '7d' });
   }
 
-  private sanitizeUser(user: IUser): Partial<IUser> {
-    const { password, ...rest } = user;
-    return rest;
+  private toPublicUser(user: IAuthUser): IUser {
+    return {
+      id: user._id!.toString(),
+      displayName: user.username,
+      bastionId: user.bastionId,
+    };
   }
 
   private validateInput(input: RegisterUserDto): void {

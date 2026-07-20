@@ -6,7 +6,7 @@ export class UserController {
 
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = await this.authService.getUserById(req.params.id);
+      const user = await this.authService.getUserById(req.params.id as string);
       res.status(200).json({ success: true, data: user });
     } catch (error) {
       next(error);
@@ -15,7 +15,7 @@ export class UserController {
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = await this.authService.updateUser(req.params.id, req.body);
+      const user = await this.authService.updateUser(req.params.id as string, req.body);
       res.status(200).json({ success: true, data: user });
     } catch (error) {
       next(error);

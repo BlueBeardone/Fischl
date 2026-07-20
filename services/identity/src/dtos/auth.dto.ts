@@ -10,8 +10,6 @@ export interface LoginUserDto {
 }
 
 export interface UpdateUserDto {
-  username?: string;
-  email?: string;
-  role?: 'user' | 'admin';
-  isActive?: boolean;
+  displayName?: string;
+  bastionId?: string;
 }
