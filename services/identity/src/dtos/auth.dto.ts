@@ -7,6 +7,7 @@ export interface RegisterUserDto {
 export interface LoginUserDto {
   email: string;
   password: string;
+  app: string;
 }
 
 export interface UpdateUserDto {

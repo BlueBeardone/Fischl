@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../repositories/user.repository';
 import { RoleService } from './role.service';
+import { AppService } from './app.service';
+import { ForbiddenError } from '../errors/http-errors';
 import { LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
 import { IAuthUser, IUser } from '../models/user.model';
 import { ROLE_USER } from '../constants/roles';
@@ -9,7 +11,8 @@ import { ROLE_USER } from '../constants/roles';
 export class AuthService {
   constructor(
     private readonly userRepository = new UserRepository(),
-    private readonly roleService = new RoleService()
+    private readonly roleService = new RoleService(),
+    private readonly appService = new AppService()
   ) {}
 
   async register(input: RegisterUserDto): Promise<{ user: IUser; token: string }> {
@@ -44,6 +47,10 @@ export class AuthService {
       throw new Error('Email and password are required');
     }
 
+    if (!input.app) {
+      throw new Error('App is required');
+    }
+
     const user = await this.userRepository.findByEmail(input.email);
     if (!user || !user.password) {
       throw new Error('Invalid credentials');
@@ -52,6 +59,11 @@ export class AuthService {
     const isValidPassword = await bcrypt.compare(input.password, user.password);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
+    }
+
+    const allowed = await this.appService.canUserAccess(input.app, user.roles ?? []);
+    if (!allowed) {
+      throw new ForbiddenError('Forbidden');
     }
 
     const token = this.signToken(user._id!);
