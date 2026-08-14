@@ -21,4 +21,20 @@ export class UserRepository {
   async update(id: string, data: Partial<IAuthUser>): Promise<IAuthUser | null> {
     return UserModel.findByIdAndUpdate(id, data, { new: true }).lean().exec();
   }
+
+  async addRole(id: string, roleName: string): Promise<IAuthUser | null> {
+    return UserModel.findByIdAndUpdate(
+      id,
+      { $addToSet: { roles: roleName } },
+      { new: true }
+    ).lean().exec();
+  }
+
+  async removeRole(id: string, roleName: string): Promise<IAuthUser | null> {
+    return UserModel.findByIdAndUpdate(
+      id,
+      { $pull: { roles: roleName } },
+      { new: true }
+    ).lean().exec();
+  }
 }

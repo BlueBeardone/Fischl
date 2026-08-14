@@ -54,6 +54,10 @@ export class AuthService {
     return { user: this.toPublicUser(user), token };
   }
 
+  async getRawUser(userId: string): Promise<IAuthUser | null> {
+    return this.userRepository.findById(userId);
+  }
+
   async getCurrentUser(userId: string): Promise<IUser | null> {
     const user = await this.userRepository.findById(userId);
     return user ? this.toPublicUser(user) : null;

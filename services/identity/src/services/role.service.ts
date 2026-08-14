@@ -1,5 +1,7 @@
 import { IRole } from '../models/role.model';
+import { IAuthUser } from '../models/user.model';
 import { RoleRepository } from '../repositories/role.repository';
+import { UserRepository } from '../repositories/user.repository';
 import { ConflictError, NotFoundError } from '../errors/http-errors';
 
 interface CreateRoleInput {
@@ -13,7 +15,10 @@ interface UpdateRoleInput {
 }
 
 export class RoleService {
-  constructor(private readonly roleRepository = new RoleRepository()) {}
+  constructor(
+    private readonly roleRepository = new RoleRepository(),
+    private readonly userRepository = new UserRepository()
+  ) {}
 
   async create(input: CreateRoleInput): Promise<IRole> {
     const name = input.name.trim().toLowerCase();
@@ -65,5 +70,27 @@ export class RoleService {
     if (!role) {
       throw new NotFoundError(`Role '${name}' not found`);
     }
+  }
+
+  async assignRole(userId: string, roleName: string): Promise<IAuthUser> {
+    const normalized = roleName.trim().toLowerCase();
+    const role = await this.roleRepository.findByName(normalized);
+    if (!role) {
+      throw new NotFoundError(`Role '${roleName}' not found`);
+    }
+    const user = await this.userRepository.addRole(userId, normalized);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+    return user;
+  }
+
+  async removeRole(userId: string, roleName: string): Promise<IAuthUser> {
+    const normalized = roleName.trim().toLowerCase();
+    const user = await this.userRepository.removeRole(userId, normalized);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+    return user;
   }
 }
