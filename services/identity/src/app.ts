@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { authRouter } from './routes/auth.routes';
 import { userRouter } from './routes/user.routes';
 import { roleRouter } from './routes/role.routes';
+import { appRouter } from './routes/app.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
 import { migrateLegacyRoles } from './bootstrap/migrate-legacy-roles';
@@ -28,6 +29,7 @@ export const createApp = async (): Promise<Application> => {
   app.use('/identity', authRouter);
   app.use('/identity', userRouter);
   app.use('/identity', roleRouter);
+  app.use('/identity', appRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     errorHandler(err, res);
