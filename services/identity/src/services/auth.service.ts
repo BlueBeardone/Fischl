@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { UserRepository } from '../repositories/user.repository';
 import { LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
 import { IAuthUser, IUser } from '../models/user.model';
+import { ROLE_USER } from '../constants/roles';
 
 export class AuthService {
   constructor(private readonly userRepository = new UserRepository()) {}
@@ -26,7 +27,7 @@ export class AuthService {
       email: input.email,
       username: input.username,
       password: passwordHash,
-      role: 'user',
+      roles: [ROLE_USER],
       isActive: true
     });
 
@@ -86,6 +87,7 @@ export class AuthService {
       id: user._id!.toString(),
       displayName: user.username,
       bastionId: user.bastionId,
+      roles: user.roles ?? [ROLE_USER],
     };
   }
 
