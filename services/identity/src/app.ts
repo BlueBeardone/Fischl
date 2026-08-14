@@ -6,6 +6,7 @@ import { userRouter } from './routes/user.routes';
 import { roleRouter } from './routes/role.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
+import { bootstrapAdmin } from './bootstrap/admin';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ export const createApp = async (): Promise<Application> => {
   app.use(express.json());
 
   await connectDatabase();
+  await bootstrapAdmin();
 
   app.get('/health', (_req, res) => {
     res.json({ success: true, message: 'Identity service is healthy' });
