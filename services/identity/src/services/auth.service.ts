@@ -1,12 +1,16 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../repositories/user.repository';
+import { RoleService } from './role.service';
 import { LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
 import { IAuthUser, IUser } from '../models/user.model';
 import { ROLE_USER } from '../constants/roles';
 
 export class AuthService {
-  constructor(private readonly userRepository = new UserRepository()) {}
+  constructor(
+    private readonly userRepository = new UserRepository(),
+    private readonly roleService = new RoleService()
+  ) {}
 
   async register(input: RegisterUserDto): Promise<{ user: IUser; token: string }> {
     this.validateInput(input);
@@ -66,6 +70,16 @@ export class AuthService {
   async getUserById(userId: string): Promise<IUser | null> {
     const user = await this.userRepository.findById(userId);
     return user ? this.toPublicUser(user) : null;
+  }
+
+  async addRole(userId: string, roleName: string): Promise<IUser | null> {
+    const user = await this.roleService.assignRole(userId, roleName);
+    return this.toPublicUser(user);
+  }
+
+  async removeRole(userId: string, roleName: string): Promise<IUser | null> {
+    const user = await this.roleService.removeRole(userId, roleName);
+    return this.toPublicUser(user);
   }
 
   async updateUser(userId: string, input: UpdateUserDto): Promise<IUser | null> {
