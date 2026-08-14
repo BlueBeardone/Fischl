@@ -6,6 +6,7 @@ import { userRouter } from './routes/user.routes';
 import { roleRouter } from './routes/role.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
+import { migrateLegacyRoles } from './bootstrap/migrate-legacy-roles';
 import { bootstrapAdmin } from './bootstrap/admin';
 
 dotenv.config();
@@ -17,6 +18,7 @@ export const createApp = async (): Promise<Application> => {
   app.use(express.json());
 
   await connectDatabase();
+  await migrateLegacyRoles();
   await bootstrapAdmin();
 
   app.get('/health', (_req, res) => {
