@@ -41,11 +41,13 @@ export class RoleService {
     if (!existing) {
       throw new NotFoundError(`Role '${name}' not found`);
     }
-    if (input.name !== undefined && input.name !== existing.name) {
+    if (input.name !== undefined) {
       const target = input.name.trim().toLowerCase();
-      const duplicate = await this.roleRepository.findByName(target);
-      if (duplicate) {
-        throw new ConflictError(`Role '${target}' already exists`);
+      if (target !== existing.name) {
+        const duplicate = await this.roleRepository.findByName(target);
+        if (duplicate) {
+          throw new ConflictError(`Role '${target}' already exists`);
+        }
       }
     }
     const role = await this.roleRepository.update(name.trim().toLowerCase(), {
