@@ -1,48 +1,49 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { BastionService } from '../services/bastion.service';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 export class BastionController {
   constructor(private readonly bastionService = new BastionService()) {}
 
-  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  create = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastion = await this.bastionService.create(req.body);
+      const bastion = await this.bastionService.create(req.userId!, req.body);
       res.status(201).json({ success: true, data: bastion });
     } catch (error) {
       next(error);
     }
   };
 
-  listAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  listAll = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastions = await this.bastionService.listAll();
+      const bastions = await this.bastionService.listAll(req.userId!);
       res.status(200).json({ success: true, data: bastions });
     } catch (error) {
       next(error);
     }
   };
 
-  getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastion = await this.bastionService.getById(req.params.id as string);
+      const bastion = await this.bastionService.getById(req.params.id as string, req.userId!);
       res.status(200).json({ success: true, data: bastion });
     } catch (error) {
       next(error);
     }
   };
 
-  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  update = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastion = await this.bastionService.update(req.params.id as string, req.body);
+      const bastion = await this.bastionService.update(req.params.id as string, req.body, req.userId!);
       res.status(200).json({ success: true, data: bastion });
     } catch (error) {
       next(error);
     }
   };
 
-  delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  delete = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.bastionService.delete(req.params.id as string);
+      await this.bastionService.delete(req.params.id as string, req.userId!);
       res.status(200).json({ success: true, message: 'Bastion deleted' });
     } catch (error) {
       next(error);

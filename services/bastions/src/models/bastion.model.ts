@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose';
 
 export interface IBastion {
   id: string;
+  userId: string;
   name: string;
   description: string;
   imgUrl?: string;
@@ -9,6 +10,7 @@ export interface IBastion {
 
 const bastionSchema = new Schema(
   {
+    userId: { type: String, required: true, index: true },
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     imgUrl: { type: String },

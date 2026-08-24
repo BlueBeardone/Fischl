@@ -9,6 +9,7 @@ import { IDefender } from '../models/defender.model';
 
 export interface IAssembledBastion {
   id: string;
+  userId: string;
   name: string;
   description: string;
   imgUrl?: string;
@@ -25,31 +26,31 @@ export class BastionService {
     private readonly defenderRepository = new DefenderRepository(),
   ) {}
 
-  async create(input: CreateBastionDto): Promise<IAssembledBastion> {
+  async create(userId: string, input: CreateBastionDto): Promise<IAssembledBastion> {
     this.validateInput(input);
-    const bastion = await this.bastionRepository.create(input as unknown as Record<string, unknown>);
+    const bastion = await this.bastionRepository.create({ userId, ...input } as unknown as Record<string, unknown>);
     return this.assembleBastion(bastion);
   }
 
-  async listAll(): Promise<IAssembledBastion[]> {
-    const bastions = await this.bastionRepository.findAll();
+  async listAll(userId: string): Promise<IAssembledBastion[]> {
+    const bastions = await this.bastionRepository.findAll(userId);
     return Promise.all(bastions.map((b) => this.assembleBastion(b)));
   }
 
-  async getById(id: string): Promise<IAssembledBastion | null> {
-    const bastion = await this.bastionRepository.findById(id);
+  async getById(id: string, userId: string): Promise<IAssembledBastion | null> {
+    const bastion = await this.bastionRepository.findById(id, userId);
     if (!bastion) return null;
     return this.assembleBastion(bastion);
   }
 
-  async update(id: string, input: UpdateBastionDto): Promise<IAssembledBastion | null> {
-    const bastion = await this.bastionRepository.update(id, input as unknown as Record<string, unknown>);
+  async update(id: string, input: UpdateBastionDto, userId: string): Promise<IAssembledBastion | null> {
+    const bastion = await this.bastionRepository.update(id, input as unknown as Record<string, unknown>, userId);
     if (!bastion) return null;
     return this.assembleBastion(bastion);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.bastionRepository.delete(id);
+  async delete(id: string, userId: string): Promise<void> {
+    await this.bastionRepository.delete(id, userId);
   }
 
   private async assembleBastion(bastion: Record<string, any>): Promise<IAssembledBastion> {
@@ -62,6 +63,7 @@ export class BastionService {
 
     return {
       id,
+      userId: bastion.userId,
       name: bastion.name,
       description: bastion.description,
       imgUrl: bastion.imgUrl,
