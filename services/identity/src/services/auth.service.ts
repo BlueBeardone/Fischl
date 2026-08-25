@@ -4,7 +4,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { RoleService } from './role.service';
 import { AppService } from './app.service';
 import { ForbiddenError } from '../errors/http-errors';
-import { LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
+import { LoginUserByUsernameDto, LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
 import { IAuthUser, IUser } from '../models/user.model';
 import { ROLE_USER } from '../constants/roles';
 
@@ -46,28 +46,28 @@ export class AuthService {
     if (!input.email || !input.password) {
       throw new Error('Email and password are required');
     }
-
     if (!input.app) {
       throw new Error('App is required');
     }
-
     const user = await this.userRepository.findByEmail(input.email);
     if (!user || !user.password) {
       throw new Error('Invalid credentials');
     }
+    return this.authenticateAndSign(user, input.password, input.app);
+  }
 
-    const isValidPassword = await bcrypt.compare(input.password, user.password);
-    if (!isValidPassword) {
+  async loginByUsername(input: LoginUserByUsernameDto): Promise<{ user: IUser; token: string }> {
+    if (!input.username || !input.password) {
+      throw new Error('Username and password are required');
+    }
+    if (!input.app) {
+      throw new Error('App is required');
+    }
+    const user = await this.userRepository.findByUsername(input.username);
+    if (!user || !user.password) {
       throw new Error('Invalid credentials');
     }
-
-    const allowed = await this.appService.canUserAccess(input.app, user.roles ?? []);
-    if (!allowed) {
-      throw new ForbiddenError('Forbidden');
-    }
-
-    const token = this.signToken(user._id!);
-    return { user: this.toPublicUser(user), token };
+    return this.authenticateAndSign(user, input.password, input.app);
   }
 
   async getRawUser(userId: string): Promise<IAuthUser | null> {
@@ -81,6 +81,11 @@ export class AuthService {
 
   async getUserById(userId: string): Promise<IUser | null> {
     const user = await this.userRepository.findById(userId);
+    return user ? this.toPublicUser(user) : null;
+  }
+
+  async getUserByUsername(username: string): Promise<IUser | null> {
+    const user = await this.userRepository.findByUsername(username);
     return user ? this.toPublicUser(user) : null;
   }
 
@@ -99,12 +104,26 @@ export class AuthService {
     if (input.displayName !== undefined) {
       updateData.username = input.displayName;
     }
-    if (input.bastionId !== undefined) {
-      updateData.bastionId = input.bastionId;
-    }
 
     const user = await this.userRepository.update(userId, updateData as Partial<IAuthUser>);
     return user ? this.toPublicUser(user) : null;
+  }
+
+  private async authenticateAndSign(
+    user: IAuthUser,
+    password: string,
+    app: string
+  ): Promise<{ user: IUser; token: string }> {
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      throw new Error('Invalid credentials');
+    }
+    const allowed = await this.appService.canUserAccess(app, user.roles ?? []);
+    if (!allowed) {
+      throw new ForbiddenError('Forbidden');
+    }
+    const token = this.signToken(user._id!);
+    return { user: this.toPublicUser(user), token };
   }
 
   private signToken(userId: string): string {
@@ -116,7 +135,6 @@ export class AuthService {
     return {
       id: user._id!.toString(),
       displayName: user.username,
-      bastionId: user.bastionId,
       roles: user.roles ?? [ROLE_USER],
     };
   }

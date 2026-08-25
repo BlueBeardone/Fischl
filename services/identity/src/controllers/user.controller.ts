@@ -13,6 +13,19 @@ export class UserController {
     }
   };
 
+  getByUsername = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = await this.authService.getUserByUsername(req.params.username as string);
+      if (!user) {
+        res.status(404).json({ success: false, message: 'User not found' });
+        return;
+      }
+      res.status(200).json({ success: true, data: user });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = await this.authService.updateUser(req.params.id as string, req.body);

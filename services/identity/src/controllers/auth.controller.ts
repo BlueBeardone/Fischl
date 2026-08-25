@@ -23,6 +23,15 @@ export class AuthController {
     }
   };
 
+  loginByUsername = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await this.authService.loginByUsername(req.body);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   me = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = await this.authService.getCurrentUser(req.userId!);

@@ -10,7 +10,12 @@ export interface LoginUserDto {
   app: string;
 }
 
+export interface LoginUserByUsernameDto {
+  username: string;
+  password: string;
+  app: string;
+}
+
 export interface UpdateUserDto {
   displayName?: string;
-  bastionId?: string;
 }

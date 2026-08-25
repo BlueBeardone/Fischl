@@ -7,6 +7,7 @@ import { ROLE_ADMIN } from '../constants/roles';
 const router = Router();
 const controller = new UserController();
 
+router.get('/users/by-username/:username', controller.getByUsername);
 router.get('/users/:id', controller.getById);
 router.patch('/users/:id', controller.update);
 router.post('/users/:id/roles', authenticate, requireRole(ROLE_ADMIN), controller.addRole);

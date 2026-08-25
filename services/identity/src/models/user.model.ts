@@ -9,7 +9,6 @@ export interface IAuthUser {
   password: string;
   roles: string[];
   isActive: boolean;
-  bastionId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -18,7 +17,6 @@ export interface IAuthUser {
 export interface IUser {
   id: string;
   displayName: string;
-  bastionId?: string;
   roles: string[];
 }
 
@@ -29,7 +27,6 @@ const authUserSchema = new Schema<IAuthUser>(
     password: { type: String, required: true },
     roles: { type: [String], default: [ROLE_USER] },
     isActive: { type: Boolean, default: true },
-    bastionId: { type: String },
   },
   { timestamps: true }
 );
