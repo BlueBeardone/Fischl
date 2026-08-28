@@ -10,6 +10,7 @@
     "dev:identity": "npm --workspace services/identity run dev",
     "dev:bastions": "npm --workspace services/bastions run dev",
     "dev:newspapers": "npm --workspace services/newspapers run dev",
+    "dev:random-events": "npm --workspace services/random-events run dev",
     "docker:compose": "docker compose up -d"
   }
 }
