@@ -2,6 +2,9 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { bastionRouter } from './routes/bastion.routes';
+import { facilityRouter } from './routes/facility.routes';
+import { hirelingRouter } from './routes/hireling.routes';
+import { defenderRouter } from './routes/defender.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
 
@@ -20,6 +23,9 @@ export const createApp = async (): Promise<Application> => {
   });
 
   app.use('/bastions', bastionRouter);
+  app.use('/facilities', facilityRouter);
+  app.use('/hirelings', hirelingRouter);
+  app.use('/defenders', defenderRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     errorHandler(err, res);

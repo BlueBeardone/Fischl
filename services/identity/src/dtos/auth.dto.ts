@@ -7,11 +7,15 @@ export interface RegisterUserDto {
 export interface LoginUserDto {
   email: string;
   password: string;
+  app: string;
+}
+
+export interface LoginUserByUsernameDto {
+  username: string;
+  password: string;
+  app: string;
 }
 
 export interface UpdateUserDto {
-  username?: string;
-  email?: string;
-  role?: 'user' | 'admin';
-  isActive?: boolean;
+  displayName?: string;
 }

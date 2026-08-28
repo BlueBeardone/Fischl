@@ -1,13 +1,21 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../repositories/user.repository';
-import { LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
-import { IUser } from '../models/user.model';
+import { RoleService } from './role.service';
+import { AppService } from './app.service';
+import { ForbiddenError } from '../errors/http-errors';
+import { LoginUserByUsernameDto, LoginUserDto, RegisterUserDto, UpdateUserDto } from '../dtos/auth.dto';
+import { IAuthUser, IUser } from '../models/user.model';
+import { ROLE_USER } from '../constants/roles';
 
 export class AuthService {
-  constructor(private readonly userRepository = new UserRepository()) {}
+  constructor(
+    private readonly userRepository = new UserRepository(),
+    private readonly roleService = new RoleService(),
+    private readonly appService = new AppService()
+  ) {}
 
-  async register(input: RegisterUserDto): Promise<{ user: Partial<IUser>; token: string }> {
+  async register(input: RegisterUserDto): Promise<{ user: IUser; token: string }> {
     this.validateInput(input);
 
     const existingEmail = await this.userRepository.findByEmail(input.email);
@@ -26,46 +34,103 @@ export class AuthService {
       email: input.email,
       username: input.username,
       password: passwordHash,
-      role: 'user',
+      roles: [ROLE_USER],
       isActive: true
     });
 
     const token = this.signToken(user._id!);
-    return { user: this.sanitizeUser(user), token };
+    return { user: this.toPublicUser(user), token };
   }
 
-  async login(input: LoginUserDto): Promise<{ user: Partial<IUser>; token: string }> {
+  async login(input: LoginUserDto): Promise<{ user: IUser; token: string }> {
     if (!input.email || !input.password) {
       throw new Error('Email and password are required');
     }
-
+    if (!input.app) {
+      throw new Error('App is required');
+    }
     const user = await this.userRepository.findByEmail(input.email);
     if (!user || !user.password) {
       throw new Error('Invalid credentials');
     }
+    return this.authenticateAndSign(user, input.password, input.app);
+  }
 
-    const isValidPassword = await bcrypt.compare(input.password, user.password);
+  async loginByUsername(input: LoginUserByUsernameDto): Promise<{ user: IUser; token: string }> {
+    if (!input.username || !input.password) {
+      throw new Error('Username and password are required');
+    }
+    if (!input.app) {
+      throw new Error('App is required');
+    }
+    const users = await this.userRepository.findManyByUsername(input.username);
+    if (!users.length) {
+      throw new Error('Invalid credentials');
+    }
+    for (const user of users) {
+      if (!user.password) continue;
+      const isValidPassword = await bcrypt.compare(input.password, user.password);
+      if (isValidPassword) {
+        return this.authenticateAndSign(user, input.password, input.app);
+      }
+    }
+    throw new Error('Invalid credentials');
+  }
+
+  async getRawUser(userId: string): Promise<IAuthUser | null> {
+    return this.userRepository.findById(userId);
+  }
+
+  async getCurrentUser(userId: string): Promise<IUser | null> {
+    const user = await this.userRepository.findById(userId);
+    return user ? this.toPublicUser(user) : null;
+  }
+
+  async getUserById(userId: string): Promise<IUser | null> {
+    const user = await this.userRepository.findById(userId);
+    return user ? this.toPublicUser(user) : null;
+  }
+
+  async getUserByUsername(username: string): Promise<IUser | null> {
+    const user = await this.userRepository.findByUsername(username);
+    return user ? this.toPublicUser(user) : null;
+  }
+
+  async addRole(userId: string, roleName: string): Promise<IUser | null> {
+    const user = await this.roleService.assignRole(userId, roleName);
+    return this.toPublicUser(user);
+  }
+
+  async removeRole(userId: string, roleName: string): Promise<IUser | null> {
+    const user = await this.roleService.removeRole(userId, roleName);
+    return this.toPublicUser(user);
+  }
+
+  async updateUser(userId: string, input: UpdateUserDto): Promise<IUser | null> {
+    const updateData: Record<string, unknown> = {};
+    if (input.displayName !== undefined) {
+      updateData.username = input.displayName;
+    }
+
+    const user = await this.userRepository.update(userId, updateData as Partial<IAuthUser>);
+    return user ? this.toPublicUser(user) : null;
+  }
+
+  private async authenticateAndSign(
+    user: IAuthUser,
+    password: string,
+    app: string
+  ): Promise<{ user: IUser; token: string }> {
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
-
+    const allowed = await this.appService.canUserAccess(app, user.roles ?? []);
+    if (!allowed) {
+      throw new ForbiddenError('Forbidden');
+    }
     const token = this.signToken(user._id!);
-    return { user: this.sanitizeUser(user), token };
-  }
-
-  async getCurrentUser(userId: string): Promise<Partial<IUser> | null> {
-    const user = await this.userRepository.findById(userId);
-    return user ? this.sanitizeUser(user) : null;
-  }
-
-  async getUserById(userId: string): Promise<Partial<IUser> | null> {
-    const user = await this.userRepository.findById(userId);
-    return user ? this.sanitizeUser(user) : null;
-  }
-
-  async updateUser(userId: string, input: UpdateUserDto): Promise<Partial<IUser> | null> {
-    const user = await this.userRepository.update(userId, input);
-    return user ? this.sanitizeUser(user) : null;
+    return { user: this.toPublicUser(user), token };
   }
 
   private signToken(userId: string): string {
@@ -73,9 +138,12 @@ export class AuthService {
     return jwt.sign({ sub: userId }, secret, { expiresIn: '7d' });
   }
 
-  private sanitizeUser(user: IUser): Partial<IUser> {
-    const { password, ...rest } = user;
-    return rest;
+  private toPublicUser(user: IAuthUser): IUser {
+    return {
+      id: user._id!.toString(),
+      displayName: user.username,
+      roles: user.roles ?? [ROLE_USER],
+    };
   }
 
   private validateInput(input: RegisterUserDto): void {

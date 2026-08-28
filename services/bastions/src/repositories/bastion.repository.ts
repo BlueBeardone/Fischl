@@ -1,28 +1,27 @@
-import { BastionModel, IBastion } from '../models/bastion.model';
+import { BastionModel } from '../models/bastion.model';
 
 export class BastionRepository {
-  async create(data: Partial<IBastion>): Promise<IBastion> {
+  async create(data: Record<string, unknown>) {
     const bastion = await BastionModel.create(data);
-    return bastion.toObject() as IBastion;
+    return bastion.toJSON();
   }
 
-  async findAll(): Promise<IBastion[]> {
-    return BastionModel.find().lean().exec();
+  async findAll(userId: string) {
+    const docs = await BastionModel.find({ userId }).exec();
+    return docs.map(d => d.toJSON());
   }
 
-  async findById(id: string): Promise<IBastion | null> {
-    return BastionModel.findById(id).lean().exec();
+  async findById(id: string, userId: string) {
+    const doc = await BastionModel.findOne({ _id: id, userId }).exec();
+    return doc ? doc.toJSON() : null;
   }
 
-  async findByOwner(ownerId: string): Promise<IBastion[]> {
-    return BastionModel.find({ ownerId }).lean().exec();
+  async update(id: string, data: Record<string, unknown>, userId: string) {
+    const doc = await BastionModel.findOneAndUpdate({ _id: id, userId }, data, { new: true }).exec();
+    return doc ? doc.toJSON() : null;
   }
 
-  async update(id: string, data: Partial<IBastion>): Promise<IBastion | null> {
-    return BastionModel.findByIdAndUpdate(id, data, { new: true }).lean().exec();
-  }
-
-  async delete(id: string): Promise<void> {
-    await BastionModel.findByIdAndDelete(id).exec();
+  async delete(id: string, userId: string): Promise<void> {
+    await BastionModel.findOneAndDelete({ _id: id, userId }).exec();
   }
 }

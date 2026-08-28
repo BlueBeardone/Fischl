@@ -9,6 +9,7 @@
     "build": "npm run build --workspaces --if-present",
     "dev:identity": "npm --workspace services/identity run dev",
     "dev:bastions": "npm --workspace services/bastions run dev",
+    "dev:newspapers": "npm --workspace services/newspapers run dev",
     "docker:compose": "docker compose up -d"
   }
 }
