@@ -63,11 +63,18 @@ export class AuthService {
     if (!input.app) {
       throw new Error('App is required');
     }
-    const user = await this.userRepository.findByUsername(input.username);
-    if (!user || !user.password) {
+    const users = await this.userRepository.findManyByUsername(input.username);
+    if (!users.length) {
       throw new Error('Invalid credentials');
     }
-    return this.authenticateAndSign(user, input.password, input.app);
+    for (const user of users) {
+      if (!user.password) continue;
+      const isValidPassword = await bcrypt.compare(input.password, user.password);
+      if (isValidPassword) {
+        return this.authenticateAndSign(user, input.password, input.app);
+      }
+    }
+    throw new Error('Invalid credentials');
   }
 
   async getRawUser(userId: string): Promise<IAuthUser | null> {

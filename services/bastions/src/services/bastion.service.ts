@@ -2,6 +2,7 @@ import { BastionRepository } from '../repositories/bastion.repository';
 import { FacilityRepository } from '../repositories/facility.repository';
 import { HirelingRepository } from '../repositories/hireling.repository';
 import { DefenderRepository } from '../repositories/defender.repository';
+import { isValidObjectId } from 'mongoose';
 import { CreateBastionDto, UpdateBastionDto } from '../dtos/bastion.dto';
 import { IFacility } from '../models/facility.model';
 import { IHireling } from '../models/hireling.model';
@@ -28,7 +29,12 @@ export class BastionService {
 
   async create(userId: string, input: CreateBastionDto): Promise<IAssembledBastion> {
     this.validateInput(input);
-    const bastion = await this.bastionRepository.create({ userId, ...input } as unknown as Record<string, unknown>);
+    const bastion = await this.bastionRepository.create({
+      userId,
+      name: input.name,
+      description: input.description,
+      imgUrl: input.imgUrl,
+    });
     return this.assembleBastion(bastion);
   }
 
@@ -44,8 +50,37 @@ export class BastionService {
   }
 
   async update(id: string, input: UpdateBastionDto, userId: string): Promise<IAssembledBastion | null> {
-    const bastion = await this.bastionRepository.update(id, input as unknown as Record<string, unknown>, userId);
+    const data: Record<string, unknown> = {};
+    if (input.name !== undefined) data.name = input.name;
+    if (input.description !== undefined) data.description = input.description;
+    if (input.imgUrl !== undefined) data.imgUrl = input.imgUrl;
+    const bastion = await this.bastionRepository.update(id, data, userId);
     if (!bastion) return null;
+
+    if (input.facilities?.length) {
+      for (const facility of input.facilities) {
+        const payload: Record<string, unknown> = {
+          name: facility.name,
+          rank: facility.rank,
+          description: facility.description,
+          imgUrl: facility.imgUrl,
+          minimumRequiredHirelings: facility.minimumRequiredHirelings,
+          constructionTurns: facility.constructionTurns,
+          cost: facility.cost,
+          table: facility.table,
+          constructedTurns: facility.constructedTurns,
+          bastionId: id,
+        };
+        const facilityId = facility.id && isValidObjectId(facility.id) ? facility.id : undefined;
+        const existing = facilityId ? await this.facilityRepository.findById(facilityId) : null;
+        if (existing && facilityId) {
+          await this.facilityRepository.update(facilityId, payload);
+        } else {
+          await this.facilityRepository.create(payload);
+        }
+      }
+    }
+
     return this.assembleBastion(bastion);
   }
 

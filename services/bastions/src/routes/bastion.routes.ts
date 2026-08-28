@@ -8,6 +8,7 @@ const controller = new BastionController();
 router.get('/', authenticate, controller.listAll);
 router.get('/:id', authenticate, controller.getById);
 router.post('/', authenticate, controller.create);
+router.put('/:id', authenticate, controller.update);
 router.patch('/:id', authenticate, controller.update);
 router.delete('/:id', authenticate, controller.delete);
 

@@ -18,6 +18,10 @@ export class UserRepository {
     return UserModel.findOne({ username }).lean().exec();
   }
 
+  async findManyByUsername(username: string): Promise<IAuthUser[]> {
+    return UserModel.find({ username }).lean().exec();
+  }
+
   async update(id: string, data: Partial<IAuthUser>): Promise<IAuthUser | null> {
     return UserModel.findByIdAndUpdate(id, data, { new: true }).lean().exec();
   }
