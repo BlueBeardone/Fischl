@@ -4,6 +4,7 @@ export interface CreateBastionDto {
   name: string;
   description: string;
   imgUrl?: string;
+  facilities?: UpdateBastionFacilityDto[];
 }
 
 export interface UpdateBastionFacilityDto {

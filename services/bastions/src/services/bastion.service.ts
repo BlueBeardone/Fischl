@@ -35,6 +35,24 @@ export class BastionService {
       description: input.description,
       imgUrl: input.imgUrl,
     });
+    if (input.facilities?.length) {
+      const id = (bastion as Record<string, any>)._id?.toString() ?? (bastion as Record<string, any>).id;
+      for (const facility of input.facilities) {
+        const payload: Record<string, unknown> = {
+          name: facility.name,
+          rank: facility.rank,
+          description: facility.description,
+          imgUrl: facility.imgUrl,
+          minimumRequiredHirelings: facility.minimumRequiredHirelings,
+          constructionTurns: facility.constructionTurns,
+          cost: facility.cost,
+          table: facility.table,
+          constructedTurns: facility.constructedTurns ?? 0,
+          bastionId: id,
+        };
+        await this.facilityRepository.create(payload);
+      }
+    }
     return this.assembleBastion(bastion);
   }
 
