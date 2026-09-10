@@ -33,6 +33,8 @@ const hirelingSchema = new Schema(
   }
 );
 
+hirelingSchema.index({ bastionId: 1, facilityId: 1 });
+
 hirelingSchema.virtual('id').get(function () {
   return this._id.toString();
 });

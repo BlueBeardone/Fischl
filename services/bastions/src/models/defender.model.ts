@@ -17,7 +17,7 @@ const defenderSchema = new Schema(
     description: { type: String, trim: true },
     imgUrl: { type: String },
     type: { type: String, required: true },
-    bastionId: { type: String, required: true },
+    bastionId: { type: String, required: true, index: true },
     acquisitionStory: { type: String },
   },
   {

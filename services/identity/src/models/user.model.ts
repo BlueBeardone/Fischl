@@ -23,7 +23,7 @@ export interface IUser {
 const authUserSchema = new Schema<IAuthUser>(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    username: { type: String, required: true, trim: true },
+    username: { type: String, required: true, trim: true, index: true },
     password: { type: String, required: true },
     roles: { type: [String], default: [ROLE_USER] },
     isActive: { type: Boolean, default: true },

@@ -27,7 +27,7 @@ const facilitySchema = new Schema(
       table: { type: [[String]] },
     },
     constructedTurns: { type: Number, default: 0 },
-    bastionId: { type: String, required: true },
+    bastionId: { type: String, required: true, index: true },
   },
   {
     timestamps: true,

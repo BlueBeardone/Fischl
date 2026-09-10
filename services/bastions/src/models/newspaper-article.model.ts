@@ -34,5 +34,6 @@ newspaperArticleSchema.virtual('id').get(function () {
 });
 
 newspaperArticleSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
+newspaperArticleSchema.index({ bastionId: 1, createdAt: -1 });
 
 export const NewspaperArticleModel = model<INewspaperArticle>('NewspaperArticle', newspaperArticleSchema);
