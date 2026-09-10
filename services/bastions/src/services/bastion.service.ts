@@ -2,11 +2,13 @@ import { BastionRepository } from '../repositories/bastion.repository';
 import { FacilityRepository } from '../repositories/facility.repository';
 import { HirelingRepository } from '../repositories/hireling.repository';
 import { DefenderRepository } from '../repositories/defender.repository';
+import { NewspaperArticleRepository } from '../repositories/newspaper-article.repository';
 import { isValidObjectId } from 'mongoose';
 import { CreateBastionDto, UpdateBastionDto } from '../dtos/bastion.dto';
 import { IFacility } from '../models/facility.model';
 import { IHireling } from '../models/hireling.model';
 import { IDefender } from '../models/defender.model';
+import { INewspaperArticle } from '../models/newspaper-article.model';
 
 export interface IAssembledBastion {
   id: string;
@@ -17,6 +19,7 @@ export interface IAssembledBastion {
   facilities: IFacility[];
   defenders: IDefender[];
   hirelings: IHireling[];
+  newspaperArticles: INewspaperArticle[];
 }
 
 export class BastionService {
@@ -25,6 +28,7 @@ export class BastionService {
     private readonly facilityRepository = new FacilityRepository(),
     private readonly hirelingRepository = new HirelingRepository(),
     private readonly defenderRepository = new DefenderRepository(),
+    private readonly newspaperArticleRepository = new NewspaperArticleRepository(),
   ) {}
 
   async create(userId: string, input: CreateBastionDto): Promise<IAssembledBastion> {
@@ -108,10 +112,11 @@ export class BastionService {
 
   private async assembleBastion(bastion: Record<string, any>): Promise<IAssembledBastion> {
     const id = bastion._id?.toString() ?? bastion.id;
-    const [facilities, defenders, hirelings] = await Promise.all([
+    const [facilities, defenders, hirelings, newspaperArticles] = await Promise.all([
       this.facilityRepository.findByBastionId(id),
       this.defenderRepository.findByBastionId(id),
       this.hirelingRepository.findByBastionId(id),
+      this.newspaperArticleRepository.findByBastionId(id),
     ]);
 
     return {
@@ -123,6 +128,7 @@ export class BastionService {
       facilities: facilities as unknown as IFacility[],
       defenders: defenders as unknown as IDefender[],
       hirelings: hirelings as unknown as IHireling[],
+      newspaperArticles: newspaperArticles as unknown as INewspaperArticle[],
     };
   }
 

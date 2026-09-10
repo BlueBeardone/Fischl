@@ -5,4 +5,5 @@ export const createNewspaperArticleSchema = Joi.object({
   content: Joi.string().required(),
   imageUrl: Joi.string().uri().optional(),
   author: Joi.string().allow('', null).optional(),
+  bastionId: Joi.string().required(),
 });

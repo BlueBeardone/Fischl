@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { NewspaperArticleController } from '../controllers/newspaper-article.controller';
-import { authenticate } from '../middleware/auth.middleware';
 import { validateBody } from '../middleware/validate.middleware';
 import { createNewspaperArticleSchema } from '../validators/newspaper-article.validator';
 
 const router = Router();
 const controller = new NewspaperArticleController();
 
-router.get('/', authenticate, controller.listAll);
-router.post('/', authenticate, validateBody(createNewspaperArticleSchema), controller.create);
+router.get('/', controller.listAll);
+router.get('/:id', controller.getById);
+router.post('/', validateBody(createNewspaperArticleSchema), controller.create);
+router.delete('/:id', controller.delete);
 
-export { router as newspaperRouter };
+export { router as newspaperArticleRouter };

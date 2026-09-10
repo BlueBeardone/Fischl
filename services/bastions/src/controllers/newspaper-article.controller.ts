@@ -21,4 +21,26 @@ export class NewspaperArticleController {
       next(error);
     }
   };
+
+  getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const article = await this.service.getById(req.params.id as string);
+      if (!article) {
+        res.status(404).json({ success: false, message: 'Newspaper article not found' });
+        return;
+      }
+      res.status(200).json({ success: true, data: article });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await this.service.delete(req.params.id as string);
+      res.status(200).json({ success: true, message: 'Newspaper article deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
