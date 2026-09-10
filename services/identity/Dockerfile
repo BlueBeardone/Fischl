@@ -17,4 +17,4 @@ COPY services/identity/package.json ./services/identity/package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/services/identity/dist ./services/identity/dist
 EXPOSE 3001
-CMD ["node", "services/identity/dist/server.js"]
+CMD ["node", "--max-old-space-size=128", "services/identity/dist/server.js"]

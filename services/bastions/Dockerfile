@@ -18,4 +18,4 @@ COPY services/bastions/package.json ./services/bastions/package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/services/bastions/dist ./services/bastions/dist
 EXPOSE 3002
-CMD ["node", "services/bastions/dist/services/bastions/src/server.js"]
+CMD ["node", "--max-old-space-size=128", "services/bastions/dist/services/bastions/src/server.js"]
