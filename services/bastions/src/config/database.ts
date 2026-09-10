@@ -7,5 +7,5 @@ export const connectDatabase = async (): Promise<void> => {
     return;
   }
 
-  await mongoose.connect(uri);
+  await mongoose.connect(uri, { maxPoolSize: 5 });
 };

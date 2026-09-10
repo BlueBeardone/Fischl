@@ -22,7 +22,7 @@ services:
     container_name: fischl-identity
     environment:
       PORT: 3001
-      MONGODB_URI: mongodb://mongo:27017/fischl-identity
+      MONGODB_URI: ${MONGODB_URI_IDENTITY:-mongodb://mongo:27017/fischl-identity}
       JWT_SECRET: ${JWT_SECRET}
     depends_on:
       mongo:
@@ -37,7 +37,7 @@ services:
     container_name: fischl-bastions
     environment:
       PORT: 3002
-      MONGODB_URI: mongodb://mongo:27017/fischl-bastions
+      MONGODB_URI: ${MONGODB_URI_BASTIONS:-mongodb://mongo:27017/fischl-bastions}
       JWT_SECRET: ${JWT_SECRET}
     depends_on:
       mongo:
