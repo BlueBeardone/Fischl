@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { signToken } from './token.service';
 import { UserRepository } from '../repositories/user.repository';
 import { RoleService } from './role.service';
 import { AppService } from './app.service';
@@ -38,7 +38,7 @@ export class AuthService {
       isActive: true
     });
 
-    const token = this.signToken(user._id!);
+    const token = signToken(user._id!);
     return { user: this.toPublicUser(user), token };
   }
 
@@ -129,13 +129,8 @@ export class AuthService {
     if (!allowed) {
       throw new ForbiddenError('Forbidden');
     }
-    const token = this.signToken(user._id!);
+    const token = signToken(user._id!);
     return { user: this.toPublicUser(user), token };
-  }
-
-  private signToken(userId: string): string {
-    const secret = process.env.JWT_SECRET || 'dev-secret';
-    return jwt.sign({ sub: userId }, secret, { expiresIn: '7d' });
   }
 
   private toPublicUser(user: IAuthUser): IUser {
