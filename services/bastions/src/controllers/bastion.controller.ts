@@ -16,7 +16,8 @@ export class BastionController {
 
   listAll = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastions = await this.bastionService.listAll(req.userId!);
+      const all = req.query.all === 'true';
+      const bastions = await this.bastionService.listAll(req.userId!, all);
       res.status(200).json({ success: true, data: bastions });
     } catch (error) {
       next(error);

@@ -60,8 +60,8 @@ export class BastionService {
     return this.assembleBastion(bastion);
   }
 
-  async listAll(userId: string): Promise<IAssembledBastion[]> {
-    const bastions = await this.bastionRepository.findAll(userId);
+  async listAll(userId: string, all = false): Promise<IAssembledBastion[]> {
+    const bastions = await this.bastionRepository.findAll(all ? undefined : userId);
     return Promise.all(bastions.map((b) => this.assembleBastion(b)));
   }
 

@@ -6,8 +6,9 @@ export class BastionRepository {
     return bastion.toJSON();
   }
 
-  async findAll(userId: string) {
-    const docs = await BastionModel.find({ userId }).exec();
+  async findAll(userId?: string) {
+    const filter = userId ? { userId } : {};
+    const docs = await BastionModel.find(filter).exec();
     return docs.map(d => d.toJSON());
   }
 
