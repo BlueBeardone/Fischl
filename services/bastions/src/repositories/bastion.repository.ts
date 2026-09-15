@@ -12,6 +12,19 @@ export class BastionRepository {
     return docs.map(d => d.toJSON());
   }
 
+  async findPage(excludeUserId: string, page: number, limit: number) {
+    const filter = { userId: { $ne: excludeUserId } };
+    const [docs, total] = await Promise.all([
+      BastionModel.find(filter)
+        .sort({ createdAt: 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+      BastionModel.countDocuments(filter).exec(),
+    ]);
+    return { items: docs.map((d) => d.toJSON()), total };
+  }
+
   async findById(id: string, userId: string) {
     const doc = await BastionModel.findOne({ _id: id, userId }).exec();
     return doc ? doc.toJSON() : null;

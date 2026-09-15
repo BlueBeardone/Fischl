@@ -24,6 +24,17 @@ export class BastionController {
     }
   };
 
+  browse = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const page = Number(req.query.page ?? 1);
+      const limit = Number(req.query.limit ?? 20);
+      const result = await this.bastionService.browse(req.userId!, page, limit);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   getById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const bastion = await this.bastionService.getById(req.params.id as string, req.userId!);

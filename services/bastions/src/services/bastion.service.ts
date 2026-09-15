@@ -22,6 +22,14 @@ export interface IAssembledBastion {
   newspaperArticles: INewspaperArticle[];
 }
 
+export interface IBastionPage {
+  bastions: IAssembledBastion[];
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
+}
+
 export class BastionService {
   constructor(
     private readonly bastionRepository = new BastionRepository(),
@@ -63,6 +71,12 @@ export class BastionService {
   async listAll(userId: string, all = false): Promise<IAssembledBastion[]> {
     const bastions = await this.bastionRepository.findAll(all ? undefined : userId);
     return Promise.all(bastions.map((b) => this.assembleBastion(b)));
+  }
+
+  async browse(userId: string, page = 1, limit = 20): Promise<IBastionPage> {
+    const { items, total } = await this.bastionRepository.findPage(userId, page, limit);
+    const bastions = await Promise.all(items.map((b) => this.assembleBastion(b)));
+    return { bastions, page, limit, total, hasMore: page * limit < total };
   }
 
   async getById(id: string, userId: string): Promise<IAssembledBastion | null> {
