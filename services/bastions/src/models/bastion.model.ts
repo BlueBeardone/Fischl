@@ -6,6 +6,7 @@ export interface IBastion {
   name: string;
   description: string;
   imgUrl?: string;
+  discordThreadId?: string;
 }
 
 const bastionSchema = new Schema(
@@ -14,6 +15,7 @@ const bastionSchema = new Schema(
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     imgUrl: { type: String },
+    discordThreadId: { type: String },
   },
   {
     timestamps: true,

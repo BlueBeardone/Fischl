@@ -16,6 +16,7 @@ export interface IAssembledBastion {
   name: string;
   description: string;
   imgUrl?: string;
+  discordThreadId?: string;
   facilities: IFacility[];
   defenders: IDefender[];
   hirelings: IHireling[];
@@ -90,6 +91,7 @@ export class BastionService {
     if (input.name !== undefined) data.name = input.name;
     if (input.description !== undefined) data.description = input.description;
     if (input.imgUrl !== undefined) data.imgUrl = input.imgUrl;
+    if (input.discordThreadId !== undefined) data.discordThreadId = input.discordThreadId;
     const bastion = await this.bastionRepository.update(id, data, userId);
     if (!bastion) return null;
 
@@ -139,6 +141,7 @@ export class BastionService {
       name: bastion.name,
       description: bastion.description,
       imgUrl: bastion.imgUrl,
+      discordThreadId: bastion.discordThreadId,
       facilities: facilities as unknown as IFacility[],
       defenders: defenders as unknown as IDefender[],
       hirelings: hirelings as unknown as IHireling[],

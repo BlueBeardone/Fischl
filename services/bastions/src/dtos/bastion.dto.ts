@@ -24,5 +24,6 @@ export interface UpdateBastionDto {
   name?: string;
   description?: string;
   imgUrl?: string;
+  discordThreadId?: string;
   facilities?: UpdateBastionFacilityDto[];
 }
