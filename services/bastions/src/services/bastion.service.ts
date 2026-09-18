@@ -91,7 +91,7 @@ export class BastionService {
     if (input.name !== undefined) data.name = input.name;
     if (input.description !== undefined) data.description = input.description;
     if (input.imgUrl !== undefined) data.imgUrl = input.imgUrl;
-    if (input.discordThreadId !== undefined) data.discordThreadId = input.discordThreadId;
+    if (input.discordThreadId !== undefined && input.discordThreadId !== null) data.discordThreadId = input.discordThreadId;
     const bastion = await this.bastionRepository.update(id, data, userId);
     if (!bastion) return null;
 
