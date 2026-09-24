@@ -14,10 +14,9 @@ export class BastionController {
     }
   };
 
-  listAll = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  listAll = async (_req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const all = req.query.all === 'true';
-      const bastions = await this.bastionService.listAll(req.userId!, all);
+      const bastions = await this.bastionService.listAll();
       res.status(200).json({ success: true, data: bastions });
     } catch (error) {
       next(error);
@@ -37,7 +36,11 @@ export class BastionController {
 
   getById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bastion = await this.bastionService.getById(req.params.id as string, req.userId!);
+      const bastion = await this.bastionService.getById(req.params.id as string);
+      if (!bastion) {
+        res.status(404).json({ success: false, message: 'Bastion not found' });
+        return;
+      }
       res.status(200).json({ success: true, data: bastion });
     } catch (error) {
       next(error);

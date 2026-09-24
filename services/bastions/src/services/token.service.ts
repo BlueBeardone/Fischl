@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../config/jwt';
 
 const TOKEN_EXPIRY = '90d';
 
-export function signToken(userId: string): string {
-  const secret = process.env.JWT_SECRET || 'dev-secret';
-  return jwt.sign({ sub: userId }, secret, { expiresIn: TOKEN_EXPIRY });
+export function signToken(userId: string, roles: string[] = []): string {
+  return jwt.sign({ sub: userId, roles }, getJwtSecret(), { expiresIn: TOKEN_EXPIRY });
 }

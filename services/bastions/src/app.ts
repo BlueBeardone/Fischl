@@ -8,15 +8,21 @@ import { defenderRouter } from './routes/defender.routes';
 import { newspaperArticleRouter } from './routes/newspaper-article.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
+import { getJwtSecret } from './config/jwt';
 
 dotenv.config();
 
 export const createApp = async (): Promise<Application> => {
   const app = express();
 
-  app.use(cors());
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+  app.use(cors({ origin: corsOrigins.length > 0 ? corsOrigins : false }));
   app.use(express.json());
 
+  getJwtSecret();
   await connectDatabase();
 
   app.get('/health', (_req, res) => {

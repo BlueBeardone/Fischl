@@ -16,6 +16,10 @@ export class FacilityRepository {
     return doc ? doc.toJSON() : null;
   }
 
+  async findRawById(id: string) {
+    return FacilityModel.findById(id).lean().exec();
+  }
+
   async findByBastionId(bastionId: string) {
     const docs = await FacilityModel.find({ bastionId }).exec();
     return docs.map(d => d.toJSON());

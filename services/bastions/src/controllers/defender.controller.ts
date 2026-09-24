@@ -1,19 +1,20 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { DefenderService } from '../services/defender.service';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 export class DefenderController {
   constructor(private readonly service = new DefenderService()) {}
 
-  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  create = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const defender = await this.service.create(req.body);
+      const defender = await this.service.create(req.body, req.userId!);
       res.status(201).json({ success: true, data: defender });
     } catch (error) {
       next(error);
     }
   };
 
-  listAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  listAll = async (_req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const defenders = await this.service.listAll();
       res.status(200).json({ success: true, data: defenders });
@@ -22,7 +23,7 @@ export class DefenderController {
     }
   };
 
-  getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const defender = await this.service.getById(req.params.id as string);
       if (!defender) {
@@ -35,9 +36,9 @@ export class DefenderController {
     }
   };
 
-  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  update = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const defender = await this.service.update(req.params.id as string, req.body);
+      const defender = await this.service.update(req.params.id as string, req.body, req.userId!);
       if (!defender) {
         res.status(404).json({ success: false, message: 'Defender not found' });
         return;
@@ -48,9 +49,9 @@ export class DefenderController {
     }
   };
 
-  delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  delete = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.service.delete(req.params.id as string);
+      await this.service.delete(req.params.id as string, req.userId!);
       res.status(200).json({ success: true, message: 'Defender deleted' });
     } catch (error) {
       next(error);

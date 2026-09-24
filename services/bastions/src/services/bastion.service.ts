@@ -5,6 +5,7 @@ import { DefenderRepository } from '../repositories/defender.repository';
 import { NewspaperArticleRepository } from '../repositories/newspaper-article.repository';
 import { isValidObjectId } from 'mongoose';
 import { CreateBastionDto, UpdateBastionDto } from '../dtos/bastion.dto';
+import { NotFoundError } from '../errors/http-errors';
 import { IFacility } from '../models/facility.model';
 import { IHireling } from '../models/hireling.model';
 import { IDefender } from '../models/defender.model';
@@ -69,8 +70,8 @@ export class BastionService {
     return this.assembleBastion(bastion);
   }
 
-  async listAll(userId: string, all = false): Promise<IAssembledBastion[]> {
-    const bastions = await this.bastionRepository.findAll(all ? undefined : userId);
+  async listAll(): Promise<IAssembledBastion[]> {
+    const bastions = await this.bastionRepository.findAll();
     return Promise.all(bastions.map((b) => this.assembleBastion(b)));
   }
 
@@ -80,8 +81,8 @@ export class BastionService {
     return { bastions, page, limit, total, hasMore: page * limit < total };
   }
 
-  async getById(id: string, userId: string): Promise<IAssembledBastion | null> {
-    const bastion = await this.bastionRepository.findById(id, userId);
+  async getById(id: string): Promise<IAssembledBastion | null> {
+    const bastion = await this.bastionRepository.findByIdAnyOwner(id);
     if (!bastion) return null;
     return this.assembleBastion(bastion);
   }
@@ -110,12 +111,18 @@ export class BastionService {
           bastionId: id,
         };
         const facilityId = facility.id && isValidObjectId(facility.id) ? facility.id : undefined;
-        const existing = facilityId ? await this.facilityRepository.findById(facilityId) : null;
-        if (existing && facilityId) {
-          await this.facilityRepository.update(facilityId, payload);
-        } else {
+        if (!facilityId) {
           await this.facilityRepository.create(payload);
+          continue;
         }
+        const existing = await this.facilityRepository.findRawById(facilityId);
+        if (!existing) {
+          continue;
+        }
+        if (String((existing as { bastionId?: unknown }).bastionId) !== String(id)) {
+          throw new NotFoundError('Facility not found');
+        }
+        await this.facilityRepository.update(facilityId, payload);
       }
     }
 

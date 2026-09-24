@@ -16,6 +16,10 @@ export class DefenderRepository {
     return doc ? doc.toJSON() : null;
   }
 
+  async findRawById(id: string) {
+    return DefenderModel.findById(id).lean().exec();
+  }
+
   async findByBastionId(bastionId: string) {
     const docs = await DefenderModel.find({ bastionId }).exec();
     return docs.map(d => d.toJSON());

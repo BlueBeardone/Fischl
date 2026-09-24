@@ -30,6 +30,11 @@ export class BastionRepository {
     return doc ? doc.toJSON() : null;
   }
 
+  async findByIdAnyOwner(id: string) {
+    const doc = await BastionModel.findById(id).exec();
+    return doc ? doc.toJSON() : null;
+  }
+
   async update(id: string, data: Record<string, unknown>, userId: string) {
     const doc = await BastionModel.findOneAndUpdate({ _id: id, userId }, data, { new: true }).exec();
     return doc ? doc.toJSON() : null;

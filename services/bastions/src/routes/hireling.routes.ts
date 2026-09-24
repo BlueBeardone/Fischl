@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { HirelingController } from '../controllers/hireling.controller';
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 const controller = new HirelingController();
+
+router.use(authenticate);
 
 router.get('/', controller.listAll);
 router.get('/:id', controller.getById);

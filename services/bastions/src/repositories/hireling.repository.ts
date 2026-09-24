@@ -16,6 +16,10 @@ export class HirelingRepository {
     return doc ? doc.toJSON() : null;
   }
 
+  async findRawById(id: string) {
+    return HirelingModel.findById(id).lean().exec();
+  }
+
   async findByBastionId(bastionId: string) {
     const docs = await HirelingModel.find({ bastionId }).exec();
     return docs.map(d => d.toJSON());

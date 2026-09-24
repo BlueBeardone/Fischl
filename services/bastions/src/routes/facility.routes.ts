@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { FacilityController } from '../controllers/facility.controller';
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 const controller = new FacilityController();
+
+router.use(authenticate);
 
 router.get('/', controller.listAll);
 router.get('/:id', controller.getById);

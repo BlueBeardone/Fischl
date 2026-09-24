@@ -7,6 +7,7 @@ import { roleRouter } from './routes/role.routes';
 import { appRouter } from './routes/app.routes';
 import { errorHandler } from './middleware/error-handler';
 import { connectDatabase } from './config/database';
+import { getJwtSecret } from './config/jwt';
 import { migrateLegacyRoles } from './bootstrap/migrate-legacy-roles';
 import { bootstrapAdmin } from './bootstrap/admin';
 
@@ -15,9 +16,14 @@ dotenv.config();
 export const createApp = async (): Promise<Application> => {
   const app = express();
 
-  app.use(cors());
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+  app.use(cors({ origin: corsOrigins.length > 0 ? corsOrigins : false }));
   app.use(express.json());
 
+  getJwtSecret();
   await connectDatabase();
   await migrateLegacyRoles();
   await bootstrapAdmin();

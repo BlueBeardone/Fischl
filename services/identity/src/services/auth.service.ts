@@ -38,7 +38,7 @@ export class AuthService {
       isActive: true
     });
 
-    const token = signToken(user._id!);
+    const token = signToken(user._id!, user.roles ?? [ROLE_USER]);
     return { user: this.toPublicUser(user), token };
   }
 
@@ -129,7 +129,7 @@ export class AuthService {
     if (!allowed) {
       throw new ForbiddenError('Forbidden');
     }
-    const token = signToken(user._id!);
+    const token = signToken(user._id!, user.roles ?? [ROLE_USER]);
     return { user: this.toPublicUser(user), token };
   }
 
