@@ -115,9 +115,18 @@ describe('bastions authorization', () => {
       .expect(201);
   });
 
-  it('returns all bastions to any authenticated user', async () => {
+  it('returns only the caller\'s own bastions by default', async () => {
     const res = await request(app)
       .get('/bastions')
+      .set('Authorization', `Bearer ${otherToken}`)
+      .expect(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].userId).toBe('other-2');
+  });
+
+  it('returns all bastions when all=true', async () => {
+    const res = await request(app)
+      .get('/bastions?all=true')
       .set('Authorization', `Bearer ${otherToken}`)
       .expect(200);
     expect(res.body.data).toHaveLength(2);
